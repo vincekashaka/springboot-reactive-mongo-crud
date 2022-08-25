@@ -1,7 +1,6 @@
 package com.vince.reactive.service;
 
 import com.vince.reactive.dto.ProductDto;
-import com.vince.reactive.entity.Product;
 import com.vince.reactive.repository.ProductRepository;
 import com.vince.reactive.utils.AppUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,5 +45,10 @@ public class ProductService {
                         .doOnNext(e ->e.setId(id)))
                 .flatMap(productRepository::save)
                 .map(AppUtils::entityToDto);
+    }
+
+    //DEELTE API
+    public Mono<Void> deleteProduct(String id){
+        return productRepository.deleteById(id);
     }
 }
