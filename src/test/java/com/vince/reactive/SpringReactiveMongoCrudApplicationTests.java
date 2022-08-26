@@ -15,6 +15,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
@@ -40,7 +41,7 @@ class SpringReactiveMongoCrudApplicationTests {
 	}
 
 	@Test
-	public void getProduct(){
+	public void getProductsTest(){
 		Flux<ProductDto> productDtoFlux = Flux.just(new ProductDto("111","dish", 4, 350 ),
 				new ProductDto("101","microwave", 3, 700 ));
 		when(productService.getProducts()).thenReturn(productDtoFlux);
@@ -53,11 +54,28 @@ class SpringReactiveMongoCrudApplicationTests {
 
 		StepVerifier.create(responseBody)
 				.expectSubscription()
-				.expectNext(new ProductDto("101","microwave", 3, 700 ))
 				.expectNext(new ProductDto("111","dish", 4, 350 ))
+				.expectNext(new ProductDto("101","microwave", 3, 700 ))
 				.verifyComplete();
 
 
+	}
+
+	@Test
+	public void getProductTest(){
+		Mono<ProductDto> productDtoMono = Mono.just(new ProductDto("103", "router", 5, 1000));
+		when(productService.getProductById(any())).thenReturn(productDtoMono);
+
+		Flux<ProductDto> responseBody = webTestClient.get().uri("/api/v1/products/103")
+				.exchange()
+				.expectStatus().isOk()
+				.returnResult(ProductDto.class)
+				.getResponseBody();
+
+		StepVerifier.create(responseBody)
+				.expectSubscription()
+				.expectNextMatches(p->p.getName().equals("router"))
+				.verifyComplete();
 	}
 
 }
