@@ -25,7 +25,7 @@ public class ProductController {
         return productService.getProductById(id);
     }
 
-    @GetMapping("/{product-range}")
+    @GetMapping("/product-range")
     public Flux<ProductDto> getProductBetweenRange(@RequestParam("min") double min, @RequestParam("max")double max){
         return productService.getProductInRange(min, max);
     }
