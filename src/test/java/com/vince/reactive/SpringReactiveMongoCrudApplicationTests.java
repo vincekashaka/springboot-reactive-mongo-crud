@@ -1,13 +1,40 @@
 package com.vince.reactive;
 
+import com.vince.reactive.controller.ProductController;
+import com.vince.reactive.dto.ProductDto;
+import com.vince.reactive.service.ProductService;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Mono;
 
-@SpringBootTest
+import static org.mockito.Mockito.when;
+
+@RunWith(SpringRunner.class)
+@WebFluxTest(ProductController.class)
 class SpringReactiveMongoCrudApplicationTests {
 
+	@Autowired
+	 private WebTestClient webTestClient;
+
+	@MockBean
+	private ProductService productService;
+
+
 	@Test
-	void contextLoads() {
+	public void addProductTest(){
+		Mono<ProductDto> productDtoMono = Mono.just(new ProductDto("111","dish", 4, 350 ));
+		when(productService.saveProduct(productDtoMono)).thenReturn(productDtoMono);
+
+		webTestClient.post().uri("/api/v1/products")
+				.body(Mono.just(productDtoMono), ProductDto.class)
+				.exchange()
+				.expectStatus().isOk();
 	}
 
 }
