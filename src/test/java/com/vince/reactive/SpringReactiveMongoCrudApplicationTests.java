@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
@@ -76,6 +77,26 @@ class SpringReactiveMongoCrudApplicationTests {
 				.expectSubscription()
 				.expectNextMatches(p->p.getName().equals("router"))
 				.verifyComplete();
+	}
+
+	@Test
+	public void updateProductTest(){
+		Mono<ProductDto> productDtoMono = Mono.just(new ProductDto("111","dish", 4, 350 ));
+		when(productService.updatedProduct(productDtoMono, "111")).thenReturn(productDtoMono);
+
+		webTestClient.put().uri("/api/v1/products/update/111")
+				.body(Mono.just(productDtoMono), ProductDto.class)
+				.exchange()
+				.expectStatus().isOk(); //200
+	}
+
+	@Test
+	public void deleteProductTest(){
+		given(productService.deleteProduct(any())).willReturn(Mono.empty());
+
+		webTestClient.delete().uri("/api/v1/products/delete/111")
+				.exchange()
+				.expectStatus().isOk(); //200
 	}
 
 }
